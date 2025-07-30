@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.gnaizel.enums.Cohort;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +16,8 @@ import java.time.LocalDateTime;
 public class UserCreateDto {
     @NotNull
     private Long chatId;
+    @NotNull
+    private Long userId;
     @NotBlank
     private String userName;
     @NotNull

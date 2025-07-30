@@ -2,7 +2,9 @@ package ru.gnaizel.service.schebule;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import jakarta.annotation.PostConstruct;
 import ru.gnaizel.client.ppk.PpkClient;
 import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.formater.ScheduleFormatter;
@@ -11,9 +13,6 @@ import ru.gnaizel.model.ScheduleEntry;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -22,32 +21,60 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final PpkClient ppkClient;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-    @Override
-    public String fetchAndExtractTeachersSchedule(String groupName, String korpusName) {
-        String html = ppkClient.getHtmlScheduleForPpkSite();
+    private String html;
 
-        String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
-        List<ScheduleEntry> allEntries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName)
-                .stream().filter(scheduleEntry -> scheduleEntry.getBuilding().equals(korpusName))
-                .toList();
+    @PostConstruct
+    private void init() {
+        refreshHtml();
+    }
 
-
-        return ScheduleFormatter.format(groupName, allEntries);
+    @Scheduled(cron = "0 0 2 * * ?")
+    private void refreshHtml() {
+        html = ppkClient.getHtmlScheduleForPpkSite();
+        log.info("HTML content refreshed");
     }
 
     @Override
-    public String buildScheduleToday(String groupName, String korpusName) {
-        LocalDate todayDaty = LocalDate.now();
+    public String fetchAndExtractTeachersSchedule(String teachersName) {
+        String studentsBlock = ScheduleHtmlParser.extractTeacherBlock(html);
+        List<ScheduleEntry> allEntries = ScheduleHtmlParser.parseSchedule(studentsBlock, teachersName)
+                .stream().toList();
 
-        String html = ppkClient.getHtmlScheduleForPpkSite();
+
+        return ScheduleFormatter.format(teachersName, allEntries);
+    }
+
+    @Override
+    public String buildScheduleByDate(String groupName, String korpusName, LocalDate date) {
         String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
         List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
 
         entries = entries.stream()
                 .filter(entri -> {
                     String[] dateParse = entri.getDay().split(" ");
-                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
+                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(date);
                 })
+                .toList();
+
+        if (!entries.isEmpty()) {
+            return ScheduleFormatter.format(groupName, entries);
+        }
+
+        throw new ScheduleValidationError("Not found any schedule for " + groupName);
+    }
+
+    @Override
+    public String buildScheduleToday(String groupName, String korpusName) {
+        LocalDate todayDaty = LocalDate.now();
+        
+        String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
+        List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
+
+        entries = entries.stream()
+//                .filter(entri -> {
+//                    String[] dateParse = entri.getDay().split(" ");
+//                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
+//                }) ВНИМАНИЕ ЭТО НАДА ОБРАТНО ПОСТАВИТЬ !!!!!!!!!
                 .toList();
 
         if (!entries.isEmpty()) {
@@ -60,8 +87,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public String buildScheduleToNextDay(String groupName, String korpusName) {
         LocalDate nextDay = LocalDate.now().plusDays(1);
-
-        String html = ppkClient.getHtmlScheduleForPpkSite();
+        
         String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
         List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
 

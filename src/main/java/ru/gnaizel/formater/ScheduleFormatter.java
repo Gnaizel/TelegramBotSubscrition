@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.model.ScheduleEntry;
 
-import java.nio.channels.ShutdownChannelGroupException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

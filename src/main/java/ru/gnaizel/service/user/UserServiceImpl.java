@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.gnaizel.dto.user.UserCreateDto;
 import ru.gnaizel.dto.user.UserDto;
-import ru.gnaizel.enums.Cohort;
+import ru.gnaizel.exception.TelegramUpdateValidationError;
 import ru.gnaizel.exception.TelegramUserByMassagValidationError;
 import ru.gnaizel.exception.UserValidationError;
 import ru.gnaizel.mapper.UserMapper;
@@ -23,17 +23,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean checkingForANewUserByMassage(Update update) {
         long chatId = 0;
+        long userId;
         Message message = null;
-        if (update.hasMessage()) {
+        if (update.getMessage() == null) {
+            throw new TelegramUpdateValidationError("Message not found");
+        } else if (update.hasMessage()) {
             message = update.getMessage();
             chatId = message.getChatId();
         } else if (update.hasCallbackQuery()) {
             return false;
         }
-
-        if (message.getFrom() == null) {
-            throw new TelegramUserByMassagValidationError("User not found");
-        }
+        userId = update.getMessage().getFrom().getId();
 
         String userName = message.getFrom().getUserName();
         if (userName == null || userName.isBlank()) {
@@ -43,8 +43,8 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        if (!userRepository.existsByChatId(chatId)) {
-            createUser(chatId, userName);
+        if (!userRepository.existsByUserId((userId))) {
+            createUser(chatId, userId, userName);
             return true;
         }
         return false;
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(long chatId, String userName) {
+    public User createUser(long chatId, long userId, String userName) {
         if (userRepository.existsByChatId(chatId)) {
             throw new UserValidationError("User is exists");
         }
@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
         }
         UserCreateDto userCreateDto = UserCreateDto.builder()
                 .chatId(chatId)
+                .userId(userId)
                 .userName(userName)
                 .localDateTime(LocalDateTime.now())
                 .cohort("no cohort")

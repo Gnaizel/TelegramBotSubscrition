@@ -1,7 +1,11 @@
 package ru.gnaizel.service.schebule;
 
+import java.time.LocalDate;
+
 public interface ScheduleService {
-    String  fetchAndExtractTeachersSchedule(String groupName, String korpusName);
+    String buildScheduleByDate(String groupName, String korpusName, LocalDate date);
+
+    String  fetchAndExtractTeachersSchedule(String groupName);
 
     String buildScheduleToday(String groupName, String korpusName);
 

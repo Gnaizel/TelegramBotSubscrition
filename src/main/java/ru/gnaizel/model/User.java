@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.gnaizel.enums.Cohort;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +19,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long chatId;
+    private Long userId;
     private String userName;
     private String korpus;
     private String cohort;
