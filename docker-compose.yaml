@@ -5,12 +5,12 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - user-db
+      - user-db-ppk
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/user-db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db-ppk:5432/user-db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-  user-db:
+  user-db-ppk:
     image: postgres:16.1
     container_name: user-db
     ports:
