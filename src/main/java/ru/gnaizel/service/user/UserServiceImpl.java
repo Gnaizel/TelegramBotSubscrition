@@ -25,13 +25,13 @@ public class UserServiceImpl implements UserService {
         long chatId = 0;
         long userId;
         Message message = null;
-        if (update.getMessage() == null) {
+        if (update.hasCallbackQuery()) {
+            return false;
+        } else if (update.getMessage() == null) {
             throw new TelegramUpdateValidationError("Message not found");
         } else if (update.hasMessage()) {
             message = update.getMessage();
             chatId = message.getChatId();
-        } else if (update.hasCallbackQuery()) {
-            return false;
         }
         userId = update.getMessage().getFrom().getId();
 
