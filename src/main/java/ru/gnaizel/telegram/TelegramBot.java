@@ -203,7 +203,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     String sename = update.getMessage().getText().toLowerCase().trim();
                     sename = sename.substring(0, 1).toUpperCase() + sename.substring(1);
 
-                    sendMessage(update ,scheduleService.fetchAndExtractTeachersSchedule(sename));
+                    try {
+                        sendMessage(update ,scheduleService.fetchAndExtractTeachersSchedule(sename));
+                    } catch (ScheduleValidationError e) {
+                        sendMessage(update, "Учитель ненайден");
+                    }
                     inProgress.remove(chatId);
                     return true;
                 case "setGroup", "editGroup": // setCohort() (setGroup)
@@ -382,8 +386,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         buttonKeyboard.setKeyboard(rows);
 
         message.setReplyMarkup(buttonKeyboard);
-        createKeyboard(update);
-        createKeyboard(update);
         try {
             execute(message);
         } catch (TelegramApiException e) {
@@ -490,8 +492,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (ScheduleValidationError e) {
             sendMessage(update, "Актуального расписания не найдено");
 //            throw new ScheduleValidationError(e.getMessage());
-        } finally {
-            createKeyboard(update);
         }
     }
 
