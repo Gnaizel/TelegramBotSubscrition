@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.gnaizel.dto.user.UserCreateDto;
 import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.exception.TelegramUpdateValidationError;
@@ -12,8 +14,11 @@ import ru.gnaizel.exception.UserValidationError;
 import ru.gnaizel.mapper.UserMapper;
 import ru.gnaizel.model.User;
 import ru.gnaizel.repository.user.UserRepository;
+import ru.gnaizel.telegram.TelegramBot;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public boolean checkingForANewUserByMassage(Update update) {
+    public boolean checkingForANewUserByMassage(Update update, TelegramBot bot) {
         long chatId = 0;
         long userId;
         Message message = null;
@@ -45,6 +50,33 @@ public class UserServiceImpl implements UserService {
 
         if (!userRepository.existsByUserId((userId))) {
             createUser(chatId, userId, userName);
+
+            String welcomeMessage = "Добро пожаловать " +
+                    "%s" +
+                    " ! \nэтот бот создан для оптимизации простых действий связаных с учёбой" +
+                    "\nПока он может только прислать вам актуальное расписание. ";
+            bot.sendMessage(chatId, welcomeMessage.formatted(userName));
+
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rowsIsLine = new ArrayList<>();
+            List<InlineKeyboardButton> rowIsLine = new ArrayList<>();
+
+            InlineKeyboardButton setGroupButton = new InlineKeyboardButton();
+            setGroupButton.setText("✏️Группа");
+            setGroupButton.setCallbackData("setGroup");
+
+            InlineKeyboardButton setKorpusButton = new InlineKeyboardButton();
+            setKorpusButton.setText("✏️Корпус");
+            setKorpusButton.setCallbackData("setKorpus");
+
+            rowIsLine.add(setGroupButton);
+            rowIsLine.add(setKorpusButton);
+
+            rowsIsLine.add(rowIsLine);
+
+            inlineKeyboardMarkup.setKeyboard(rowsIsLine);
+
+            bot.sendWithInlineKeyboard(chatId, "Укажите данные: Группа, Корпус", inlineKeyboardMarkup);
             return true;
         }
         return false;
