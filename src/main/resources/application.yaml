@@ -1,7 +1,7 @@
 telegram:
   bot:
-    username: "ppk_sstu_bot"
-    token: "8013678796:AAHU9QRn0jTB2kivcyNOoQa8Cyun8sgu9ag"
+    username: ""
+    token: ""
 spring:
   main:
     banner-mode: console
@@ -16,8 +16,8 @@ spring:
         format_sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    password: postgres
-    username: postgres
+    password:
+    username:
     url: jdbc:postgresql://localhost:6543/user-db
 logging:
   level:
