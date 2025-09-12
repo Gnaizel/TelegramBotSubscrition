@@ -61,4 +61,29 @@ public class KeyboardFactory {
         inlineKeyboard.setKeyboard(rows);
         return inlineKeyboard;
     }
+
+    public InlineKeyboardMarkup handleAlertLevelEditor(long chatId) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton zero = new InlineKeyboardButton();
+        zero.setText("Выкл");
+        zero.setCallbackData("setAlertLevelZero");
+
+        InlineKeyboardButton two = new InlineKeyboardButton();
+        two.setText("Важные");
+        two.setCallbackData("setAlertLevelTwo");
+
+        InlineKeyboardButton three = new InlineKeyboardButton();
+        three.setText("Все");
+        three.setCallbackData("setAlertLevelThree");
+
+        rows.add(List.of(zero));
+        rows.add(List.of(two));
+        rows.add(List.of(three));
+
+        inlineKeyboard.setKeyboard(rows);
+
+        return inlineKeyboard;
+    }
 }

@@ -13,6 +13,7 @@ import ru.gnaizel.telegram.TelegramBot;
 public class CallbackHandler {
 
     private final UserService userService;
+    private final KeyboardFactory keyboardFactory = new KeyboardFactory();
 
     public void handle(Update update, TelegramBot bot) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
@@ -24,9 +25,9 @@ public class CallbackHandler {
                         "Отправьте мне наименование вашей группы \nВ формате: ГГГ-999"));
                 ProcessHandler.inProgress.put(chatId, "setGroup");
                 break;
-            case "setKorpus", "editKorpus":
+            case "setKorpus", "editKorpus": // Эдит корпуса
                 bot.sendMessage(MessageFactory.chooseKorpus(chatId));
-                ProcessHandler.inProgress.put(chatId, "setKorpus");
+//                ProcessHandler.inProgress.put(chatId, "setKorpus");
                 break;
             case "oneKorpusButton":
                 userService.setKorpus(chatId, "Горького, 9");
@@ -52,8 +53,26 @@ public class CallbackHandler {
                 userService.setKorpus(chatId, "Сакко и Ванцетти (физкультурники)");
                 bot.sendMessage(MessageFactory.simple(update, "Корпус установлен: Сакко и Ванцетти (физкультурники)"));
                 break;
+            case "editAlertLevel": // Уровень аллёртов
+                bot.sendWithInlineKeyboard(chatId, "Выберите какие уведомления вам необходмы:",
+                        keyboardFactory.handleAlertLevelEditor(chatId));
+                ProcessHandler.inProgress.put(chatId, "editAlertLevel");
+                break;
+            case "setAlertLevelZero":
+                userService.setAlertLevel(chatId, (byte) 0);
+                bot.sendMessage(chatId, "Изменено на \uD83D\uDD15");
+                break;
+            case "setAlertLevelTwo":
+                userService.setAlertLevel(chatId, (byte) 1);
+                bot.sendMessage(chatId, "Изменено на \uD83D\uDD14❗");
+                break;
+            case "setAlertLevelThree":
+                userService.setAlertLevel(chatId, (byte) 2);
+                bot.sendMessage(chatId, "Изменено на \uD83D\uDD14");
+                break;
             default:
                 bot.sendMessage(MessageFactory.simple(update, "По какой-то причине кнопка не работает"));
         }
     }
+
 }

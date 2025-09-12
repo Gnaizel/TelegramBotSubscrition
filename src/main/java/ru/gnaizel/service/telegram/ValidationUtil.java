@@ -8,14 +8,13 @@ public class ValidationUtil {
         if (update == null) {
             throw new TelegramUpdateValidationError("Update is null");
         }
-        if (update.hasCallbackQuery()) {
+
+        if (update.hasCallbackQuery() || update.hasMyChatMember()) {
             return;
         }
+
         if (!update.hasMessage() || (!update.getMessage().hasText() && !update.getMessage().hasDocument())) {
             throw new TelegramUpdateValidationError("Message is not valid");
-        }
-        if (update.getMessage().getChatId() < 0) {
-            throw new TelegramUpdateValidationError("Bot can't handle group messages");
         }
     }
 }

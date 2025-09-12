@@ -2,6 +2,7 @@ package ru.gnaizel.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.gnaizel.enums.UserStatus;
 
 import java.time.LocalDateTime;
 
@@ -14,4 +15,6 @@ public class UserDto {
     private String korpus;
     private String cohort;
     private LocalDateTime registrationDate;
+    private UserStatus userStatus;
+    private byte alertLevel;
 }

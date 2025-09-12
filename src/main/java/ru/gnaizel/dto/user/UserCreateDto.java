@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.gnaizel.enums.UserStatus;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +22,10 @@ public class UserCreateDto {
     @NotBlank
     private String userName;
     @NotNull
+    private UserStatus userStatus;
+    @NotNull
+    private byte alertLevel;
+    @NotNull
     private LocalDateTime localDateTime;
-    private String  cohort;
+    private String cohort;
 }

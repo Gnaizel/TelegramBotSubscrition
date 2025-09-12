@@ -12,20 +12,32 @@ public class UpdateHandler {
     private final CommandHandler commandHandler;
     private final CallbackHandler callbackHandler;
     private final ProcessHandler processHandler;
-    private final MenuService menuService;
+    private final GroupInviteHandler groupInviteHandler;
 
     public void handle(Update update, TelegramBot bot) {
-        menuService.createMenuCommand(bot);
         ValidationUtil.validate(update);
 
         if (processHandler.checkAndHandle(update, bot)) {
             return;
         }
 
-        if (update.hasMessage()) {
-            commandHandler.handle(update, bot);
-        } else if (update.hasCallbackQuery()) {
-            callbackHandler.handle(update, bot);
+        if (update.hasMyChatMember()) {
+            groupInviteHandler.groupInviteHandle(update, bot);
+            return;
+        }
+
+        if (update.getMessage().getChatId() > 0) {
+            if (update.hasMessage()) {
+                commandHandler.handle(update, bot);
+            } else if (update.hasCallbackQuery()) {
+                callbackHandler.handle(update, bot);
+            }
+        } else {
+            if (update.hasMessage()) {
+                commandHandler.handleGroup(update, bot);
+            } else if (update.hasCallbackQuery()) {
+                callbackHandler.handle(update, bot);
+            }
         }
     }
 }

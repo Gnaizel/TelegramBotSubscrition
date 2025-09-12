@@ -12,6 +12,8 @@ public class UserMapper {
                 .userName(userCreateDto.getUserName())
                 .cohort("no cohort")
                 .korpus("no korpus")
+                .alertLevel(userCreateDto.getAlertLevel())
+                .userStatus(userCreateDto.getUserStatus())
                 .registrationDate(userCreateDto.getLocalDateTime())
                 .build();
     }
@@ -23,6 +25,8 @@ public class UserMapper {
                 .userName(user.getUserName())
                 .cohort(user.getCohort())
                 .korpus(user.getKorpus())
+                .alertLevel(user.getAlertLevel())
+                .userStatus(user.getUserStatus())
                 .registrationDate(user.getRegistrationDate())
                 .build();
     }

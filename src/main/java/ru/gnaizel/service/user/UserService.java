@@ -8,9 +8,11 @@ import ru.gnaizel.telegram.TelegramBot;
 public interface UserService {
     boolean checkingForANewUserByMassage(Update update, TelegramBot bot);
 
+    void setAlertLevel(long userId, byte alertLevel);
+
     UserDto findUserByChatId(long id);
 
-    User createUser(long chatId, long userId, String userName);
+    User createUser(Update update);
 
     boolean setCohort(Long chatId, String cohort);
 
