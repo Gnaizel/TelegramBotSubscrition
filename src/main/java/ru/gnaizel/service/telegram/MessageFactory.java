@@ -13,7 +13,7 @@ public class MessageFactory {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
         msg.setText(text);
-        msg.setReplyMarkup(KeyboardFactory.mainKeyboard(update));
+        msg.setReplyMarkup(KeyboardFactory.mainKeyboard());
         return msg;
     }
 

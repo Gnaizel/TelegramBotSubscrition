@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS groups (
     group_title VARCHAR(255),
     invite_link VARCHAR(255),
     number_of_member INT,
+    moderator BIGINT,
     chat_id BIGINT
 );
 

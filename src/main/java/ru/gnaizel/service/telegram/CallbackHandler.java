@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
 
@@ -13,6 +14,7 @@ import ru.gnaizel.telegram.TelegramBot;
 public class CallbackHandler {
 
     private final UserService userService;
+    private final GroupService groupService;
     private final KeyboardFactory keyboardFactory = new KeyboardFactory();
 
     public void handle(Update update, TelegramBot bot) {
@@ -55,7 +57,7 @@ public class CallbackHandler {
                 break;
             case "editAlertLevel": // Уровень аллёртов
                 bot.sendWithInlineKeyboard(chatId, "Выберите какие уведомления вам необходмы:",
-                        keyboardFactory.handleAlertLevelEditor(chatId));
+                        keyboardFactory.handleAlertLevelEditor());
                 ProcessHandler.inProgress.put(chatId, "editAlertLevel");
                 break;
             case "setAlertLevelZero":
@@ -69,6 +71,12 @@ public class CallbackHandler {
             case "setAlertLevelThree":
                 userService.setAlertLevel(chatId, (byte) 2);
                 bot.sendMessage(chatId, "Изменено на \uD83D\uDD14");
+                break;
+            case "approvedApplicationOfModeration":
+                groupService.vote(update.getCallbackQuery(), bot);
+                break;
+            case "rejectedApplicationOfModeration":
+                groupService.devote(update.getCallbackQuery(), bot);
                 break;
             default:
                 bot.sendMessage(MessageFactory.simple(update, "По какой-то причине кнопка не работает"));

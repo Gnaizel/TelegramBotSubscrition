@@ -20,5 +20,6 @@ public class Group {
     private Long chatId;
     private String groupTitle;
     private String inviteLink;
+    private Long moderator;
     private int numberOfMember;
 }

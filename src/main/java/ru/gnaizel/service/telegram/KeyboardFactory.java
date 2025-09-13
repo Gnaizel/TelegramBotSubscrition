@@ -1,6 +1,5 @@
 package ru.gnaizel.service.telegram;
 
-import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public class KeyboardFactory {
 
-    public static ReplyKeyboardMarkup mainKeyboard(Update update) {
+    public static ReplyKeyboardMarkup mainKeyboard() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(true);
@@ -62,7 +61,26 @@ public class KeyboardFactory {
         return inlineKeyboard;
     }
 
-    public InlineKeyboardMarkup handleAlertLevelEditor(long chatId) {
+    public static InlineKeyboardMarkup createModeratorApplicationKeyBord() {
+        InlineKeyboardMarkup keyBoard = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton approve = new InlineKeyboardButton();
+        approve.setText("✅");
+        approve.setCallbackData("approvedApplicationOfModeration");
+
+        InlineKeyboardButton rejected = new InlineKeyboardButton();
+        rejected.setText("❌");
+        rejected.setCallbackData("rejectedApplicationOfModeration");
+
+        rows.add(List.of(approve, rejected));
+
+        keyBoard.setKeyboard(rows);
+        return keyBoard;
+    }
+
+    public InlineKeyboardMarkup handleAlertLevelEditor() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 

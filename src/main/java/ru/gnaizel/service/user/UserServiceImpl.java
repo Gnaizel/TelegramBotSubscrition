@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
 //
 //            }
             user.getGroups().add(
-                    groupRepository.findByGroupId(
+                    groupRepository.findByChatId(
                                     chatId)
                             .orElseThrow(() -> new GroupValidationException("Group not found")));
             log.info(user.getGroups().toString());

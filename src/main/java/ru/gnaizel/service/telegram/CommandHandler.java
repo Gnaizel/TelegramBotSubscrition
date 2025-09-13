@@ -11,6 +11,7 @@ import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.model.GroupMessage;
 import ru.gnaizel.repository.GroupMessageRepository;
 import ru.gnaizel.service.schebule.ScheduleService;
+import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
 
@@ -18,11 +19,12 @@ import ru.gnaizel.telegram.TelegramBot;
 @Component
 @RequiredArgsConstructor
 public class CommandHandler {
-    private final GroupMessageRepository messageRepository;
+    private final GroupMessageRepository messageRepository; // Спрятать в GroupService
     private final UserService userService;
     private final ScheduleService scheduleService;
     private final ProfileService profileService;
     private final MenuService menuService;
+    private final GroupService groupService;
 
     public void handle(Update update, TelegramBot bot) {
         String command;
@@ -45,8 +47,8 @@ public class CommandHandler {
         userService.checkingForANewUserByMassage(update, bot);
         menuService.createMenuCommand(bot);
 
-        log.info("Command received: {}", command);
         UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
+        log.debug("Command received: {}\nFrom: {}", command, user.getUserName());
 
         try {
             switch (command) {
@@ -90,6 +92,8 @@ public class CommandHandler {
             throw new MessageValidationError("Message can't be blank");
         } else command = update.getMessage().getText();
 
+        long chatId = message.getChatId();
+
         if (command.startsWith("/")) {
             command = command.toLowerCase().replace("/", "");
         }
@@ -98,7 +102,7 @@ public class CommandHandler {
 
         UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
 
-        if (command.contains("@")) { // Реализация для групп
+        if (command.contains("@")) {
             String[] commandSplit = command.split("@");
             if (!commandSplit[1].equalsIgnoreCase(bot.getBotUsername())) {
                 return;
@@ -115,6 +119,12 @@ public class CommandHandler {
                     .build());
         }
 
-        log.info("Command from group received: {}", command);
+        switch (command) {
+            case "apply":
+                groupService.getModeratorApplication(user, chatId, bot);
+                break;
+        }
+
+        log.info("Command from group received: {}\n From: {}", command, user.getUserName());
     }
 }

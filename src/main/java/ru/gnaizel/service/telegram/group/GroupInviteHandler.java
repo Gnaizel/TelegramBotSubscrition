@@ -1,4 +1,4 @@
-package ru.gnaizel.service.telegram;
+package ru.gnaizel.service.telegram.group;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +64,8 @@ public class GroupInviteHandler {
                         .numberOfMember(1)
                         .build());
                 messageText = "Привет! Спасибо, что добавили меня в группу " + groupName + " ! \n"
-                        + "Для корректной работы боту нужны права администратора";
+                        + "Для корректной работы боту нужны права администратора" + "\n"
+                        + "Вы можете выдвинуть свою кандидатуру в роль модератора(старосты) - /apply@ppk_sstu_test_bot";
             }
 
             bot.sendMessage(chatId, messageText);
@@ -91,7 +92,9 @@ public class GroupInviteHandler {
                 group.setInviteLink(inviteLink);
                 repository.save(group);
 
-                log.debug("Бот получил админестртора");
+                log.debug("Бот получил администратора");
+
+                bot.sendMessage(chatId, "Функции бота разблокированы ");
             } else {
                 repository.save(Group.builder()
                         .chatId(chatId)
