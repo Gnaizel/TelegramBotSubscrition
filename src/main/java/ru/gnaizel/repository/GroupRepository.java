@@ -8,9 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
-    void deleteByChatId(Long chatId);
 
     Optional<Group> findByGroupId(Long groupId);
 
-    Optional<Group> findByChatId(Long chatId);
+    Optional<Group> findByGroupTitle(String groupTitle);
 }
