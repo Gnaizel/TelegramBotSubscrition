@@ -1,10 +1,7 @@
 package ru.gnaizel.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.gnaizel.enums.UserStatus;
 
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
+@ToString(exclude = "groups")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +30,6 @@ public class User {
 
     private LocalDateTime registrationDate;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_groups",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Group> groups;
 }

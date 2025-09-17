@@ -20,6 +20,7 @@ public class UserMapper {
 
     public static UserDto userToDto(User user) {
         return  UserDto.builder()
+                .groups(user.getGroups())
                 .chatId(user.getChatId())
                 .userId(user.getUserId())
                 .userName(user.getUserName())

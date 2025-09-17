@@ -1,5 +1,6 @@
 package ru.gnaizel.service.user;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,7 @@ public class UserServiceImpl implements UserService {
         User user;
         if (!userRepository.existsByUserId((userId))) {
             user = createUser(update);
+            log.debug("Create user: userId: {}", userId);
 
             if (chatId > 0) {
                 String welcomeMessage = "Добро пожаловать " +
@@ -115,6 +117,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void addGroup(long userId, Group group) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+        Group savedGroup = groupRepository.findByGroupId(group.getGroupId())
+                .orElseGet(() -> groupRepository.save(group));
+
+        if (!user.getGroups().contains(savedGroup)) {
+            user.getGroups().add(savedGroup);
+            savedGroup.getUsers().add(user);
+
+            userRepository.save(user);
+            groupRepository.save(savedGroup);
+        }
+    }
+
+    @Override
     public boolean setKorpus(long chatId, String korpus) {
         User user = userRepository.findByChatId(chatId)
                 .orElseThrow(() -> new TelegramUserByMassagValidationError("User not found"));
@@ -143,7 +162,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(Update update) {
         Message message = update.getMessage();
-        long chatId = message.getChatId();
+        long userId = message.getFrom().getId();
 
         String userName = message.getFrom().getUserName();
         if (userName == null || userName.isBlank()) {
@@ -153,7 +172,7 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        if (userRepository.existsByChatId(chatId)) {
+        if (userRepository.existsByUserId(userId)) {
             throw new UserValidationError("User is exists");
         }
 
@@ -161,7 +180,7 @@ public class UserServiceImpl implements UserService {
             throw new UserValidationError("user name can't be blank");
         }
         UserCreateDto userCreateDto = UserCreateDto.builder()
-                .chatId(chatId)
+                .chatId(userId)
                 .userId(message.getFrom().getId())
                 .userName(userName)
                 .localDateTime(LocalDateTime.now())

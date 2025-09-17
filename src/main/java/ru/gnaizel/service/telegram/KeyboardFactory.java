@@ -4,6 +4,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.gnaizel.model.Group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,23 @@ public class KeyboardFactory {
 
         keyBoard.setKeyboard(rows);
         return keyBoard;
+    }
+
+    public static InlineKeyboardMarkup handleAlertApplication(List<Group> groups) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (Group group : groups) {
+            InlineKeyboardButton groupButton = new InlineKeyboardButton();
+            groupButton.setText(group.getGroupTitle());
+            groupButton.setCallbackData("setGroupButtonForAlert" + group.getChatId());
+
+            rows.add(List.of(groupButton));
+        }
+
+        inlineKeyboard.setKeyboard(rows);
+
+        return inlineKeyboard;
     }
 
     public InlineKeyboardMarkup handleAlertLevelEditor() {

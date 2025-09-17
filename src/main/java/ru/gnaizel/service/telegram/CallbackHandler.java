@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
@@ -19,7 +20,16 @@ public class CallbackHandler {
 
     public void handle(Update update, TelegramBot bot) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
+        long userId = update.getCallbackQuery().getFrom().getId();
+        userService.checkingForANewUserByMassage(update, bot);
+        UserDto user = userService.findUserByChatId(userId);
         String callback = update.getCallbackQuery().getData();
+
+        if (callback.startsWith("setGroupButtonForAlert")) {
+            bot.sendMessage(chatId, "Отправите текст для оповещения оно прейдёт участникам группы");
+            ProcessHandler.inProgress.put(user.getUserId(), callback);
+            return;
+        }
 
         switch (callback) {
             case "setGroup", "editGroup":
@@ -30,6 +40,9 @@ public class CallbackHandler {
             case "setKorpus", "editKorpus": // Эдит корпуса
                 bot.sendMessage(MessageFactory.chooseKorpus(chatId));
 //                ProcessHandler.inProgress.put(chatId, "setKorpus");
+                break;
+            case "sendAlertGroupMenu":
+                groupService.sendAlertGroupMenu(user.getUserId(), bot);
                 break;
             case "oneKorpusButton":
                 userService.setKorpus(chatId, "Горького, 9");

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.exception.MessageValidationError;
 import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.service.schebule.ScheduleService;
+import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
 
@@ -20,6 +22,7 @@ public class ProcessHandler {
     public static final HashMap<Long, String> inProgress = new HashMap<>();
     private final ScheduleService scheduleService;
     private final UserService userService;
+    private final GroupService groupService;
 
     public boolean checkAndHandle(Update update, TelegramBot bot) {
         long chatId;
@@ -33,6 +36,18 @@ public class ProcessHandler {
 
         if (!inProgress.containsKey(chatId)) {
             return false;
+        }
+
+        if (inProgress.get(chatId).startsWith("setGroupButtonForAlert")) {
+            log.debug(inProgress.get(chatId));
+            String[] groupIdArray = inProgress.get(chatId).split("-");
+            long groupId = Long.parseLong(groupIdArray[1]) * -1;
+            String message = update.getMessage().getText();
+            UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
+            log.debug("Alert: groupId: {} UserId: {} Message: {}", groupId, user.getUserId(), message);
+            groupService.sendAlert(message, groupId, user.getUserId(), bot);
+
+            return true;
         }
 
         switch (inProgress.get(chatId)) {

@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.gnaizel.dto.user.UserDto;
+import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileService {
 
+    private final GroupService groupService;
     private final UserService userService;
 
     public void getProfile(Update update, TelegramBot bot) {
@@ -24,7 +26,7 @@ public class ProfileService {
                 update.getMessage().getChatId());
         switch (user.getUserStatus()) {
             case ACTIVE -> getDefaultProfile(user, bot);
-//            case ELDER -> ;
+            case ELDER -> getElderProfile(user, bot);
 //            case ADMIN -> ;
             case BANED ->
                     bot.sendMessage(user.getChatId(), "Ваш профиль заблокирован \n вы можете обратится в поддержку @Gnaizel");
@@ -43,7 +45,10 @@ public class ProfileService {
             default -> "Не задано";
         };
 
-        String text = "Имя: %s\nГруппа: %s\nСтатус: %s\nКорпус: %s\nУведомления: %s\nДата регистрации: %s"
+
+        String text = "Имя: %s\nГруппа: %s\nСтатус: %s" + " - "
+
+                + "\nКорпус: %s\nУведомления: %s\nДата регистрации: %s"
                 .formatted(user.getUserName(),
                         user.getCohort(),
                         user.getUserStatus(),
@@ -61,10 +66,13 @@ public class ProfileService {
         editKorpus.setCallbackData("editKorpus");
         InlineKeyboardButton editAlertLavel = new InlineKeyboardButton("Уведомления \uD83D\uDD14");
         editAlertLavel.setCallbackData("editAlertLevel");
+        InlineKeyboardButton sendAlert = new InlineKeyboardButton("Сделать ананос \uD83D\uDD14");
+        sendAlert.setCallbackData("sendAlertGroupMenu");
 
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup(
                 List.of(
-                        List.of(editGroup, editKorpus, editAlertLavel)));
+                        List.of(editGroup, editKorpus, editAlertLavel),
+                        List.of(sendAlert)));
         msg.setReplyMarkup(kb);
 
         bot.sendMessage(msg);

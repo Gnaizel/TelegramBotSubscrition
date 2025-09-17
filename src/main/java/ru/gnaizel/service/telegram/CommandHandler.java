@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.exception.MessageValidationError;
 import ru.gnaizel.exception.ScheduleValidationError;
+import ru.gnaizel.model.Group;
 import ru.gnaizel.model.GroupMessage;
 import ru.gnaizel.repository.GroupMessageRepository;
 import ru.gnaizel.service.schebule.ScheduleService;
@@ -101,6 +102,11 @@ public class CommandHandler {
         userService.checkingForANewUserByMassage(update, bot);
 
         UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
+        Group group = groupService.findOfGroupChatId(chatId);
+
+        if (!user.getGroups().contains(group)) {
+            userService.addGroup(user.getUserId(), group);
+        }
 
         if (command.contains("@")) {
             String[] commandSplit = command.split("@");

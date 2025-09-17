@@ -62,6 +62,18 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
+    @Override
+    public Group findOfGroupId(long groupId) {
+        return groupRepository.findByGroupId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+    }
+
+    @Override
+    public Group findOfGroupChatId(long chatId) {
+        return groupRepository.findByChatId(chatId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+    }
+
     private void sendApplication(UserDto user, long chatId, TelegramBot bot) {
         String messageText = String.format("%s выдвигает себя в роль модератора этой группы" +
                         "\nпроголосуйте за/против ниже.",
@@ -122,7 +134,7 @@ public class GroupServiceImpl implements GroupService {
                 } catch (Exception e) {
                     log.warn("Не удалось обновить сообщение голосования: {}", e.getMessage(), e);
                 }
-                if (votesCount >= 8) {
+                if (votesCount >= 2) {
                     setGroupModerator(chatId, applicantUserId, bot);
                 }
                 activeApplication.put(applicantUserId, request);
@@ -175,6 +187,67 @@ public class GroupServiceImpl implements GroupService {
                 log.warn("Не удалось обновить сообщение при снятии голоса: {}", e.getMessage(), e);
             }
         }
+    }
+
+    @Override
+    public List<Group> getGroupsOfUserElder(long userId) {
+        List<Group> groups = getGroupsOfUser(userId);
+        List<Group> groupOfElder = groups.stream()
+                .filter(group -> group.getModerator() == userId)
+                .toList();
+
+        if (groupOfElder.isEmpty()) {
+            throw new GroupValidationException("User bont have groupOfElder");
+        }
+
+        return groupOfElder;
+    }
+
+    @Override
+    public void sendAlert(String message, long groupChatId, long userId, TelegramBot bot) {
+        Group group = groupRepository.findByChatId(groupChatId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+
+        List<User> users = group.getUsers();
+        log.debug("users: {}", group.getUsers());
+
+
+        boolean warn = false;
+
+        for (User recipient : users) {
+            long chatId = recipient.getChatId();
+            log.debug("Send alert User: {}", recipient.getUserName());
+
+            if (chatId < 0 && !warn) {
+                bot.sendMessage(user.getChatId(), "Предупреждаю о том что некоторым пользователь не пришло " +
+                        "сообщение так как они не писали в лс боту соответственно я не могу отправлять им сообщения ");
+                warn = true;
+            } else if (chatId > 0 && !recipient.getChatId().equals(user.getChatId())) {
+                bot.sendMessage(chatId, "Внимание ! \n" + message + "\n\nОт " + user.getUserName() + "\nГруппа " + group.getGroupTitle());
+            }
+        }
+
+        bot.sendMessage(user.getChatId(), "Сообщения разосланы");
+    }
+
+    @Override
+    public void sendAlertGroupMenu(long userId, TelegramBot bot) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+        List<Group> groups = getGroupsOfUserElder(userId);
+
+        bot.sendWithInlineKeyboard(user.getChatId(), "Выберете группу в которой хотите сделать ананос: ",
+                KeyboardFactory.handleAlertApplication(groups));
+    }
+
+    @Override
+    public List<Group> getGroupsOfUser(long userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("Uesr not found"));
+
+        return user.getGroups();
     }
 
     @Override
