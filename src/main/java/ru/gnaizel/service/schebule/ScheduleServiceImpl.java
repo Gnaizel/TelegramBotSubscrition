@@ -71,11 +71,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
 
         entries = entries.stream()
-//                .filter(entri -> {
-//                    String[] dateParse = entri.getDay().split(" ");
-//                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
-//                }) ВНИМАНИЕ ЭТО НАДА ОБРАТНО ПОСТАВИТЬ !!!!!!!!!
-                .toList();
+                .filter(entri -> {
+                    String[] dateParse = entri.getDay().split(" ");
+                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
+                }).toList();
 
         if (!entries.isEmpty()) {
             return ScheduleFormatter.format(groupName, entries);
