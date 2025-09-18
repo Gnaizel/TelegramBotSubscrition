@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.gnaizel.dto.user.UserDto;
+import ru.gnaizel.enums.AlertTepe;
 import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
@@ -41,8 +42,14 @@ public class CallbackHandler {
                 bot.sendMessage(MessageFactory.chooseKorpus(chatId));
 //                ProcessHandler.inProgress.put(chatId, "setKorpus");
                 break;
-            case "sendAlertGroupMenu":
-                groupService.sendAlertGroupMenu(user.getUserId(), bot);
+            case "sendChoseTepeAlert":
+                groupService.sendChoseTepeAlert(userId, bot);
+                break;
+            case "sendAlertToGroupMember":
+                groupService.sendAlertGroupMenu(user.getUserId(), AlertTepe.GROUP_MAMERS, bot);
+                break;
+            case "sendAlertToGroup":
+                groupService.sendAlertGroupMenu(user.getUserId(), AlertTepe.GROUP, bot);
                 break;
             case "oneKorpusButton":
                 userService.setKorpus(chatId, "Горького, 9");

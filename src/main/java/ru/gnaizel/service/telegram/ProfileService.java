@@ -17,8 +17,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ProfileService {
-
-    private final GroupService groupService;
     private final UserService userService;
 
     public void getProfile(Update update, TelegramBot bot) {
@@ -46,16 +44,20 @@ public class ProfileService {
         };
 
 
-        String text = "Имя: %s\nГруппа: %s\nСтатус: %s" + " - "
-
-                + "\nКорпус: %s\nУведомления: %s\nДата регистрации: %s"
+        String text = """
+                Имя: %s
+                Группа: %s
+                Статус: %s
+                Корпус: %s
+                Уведомления: %s
+                Дата регистрации: %s"""
                 .formatted(user.getUserName(),
                         user.getCohort(),
                         user.getUserStatus(),
                         user.getKorpus(),
                         alertLevel,
-                        user.getRegistrationDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")));
-
+                        user.getRegistrationDate()
+                                .format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")));
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId);
         msg.setText(text);
@@ -67,7 +69,7 @@ public class ProfileService {
         InlineKeyboardButton editAlertLavel = new InlineKeyboardButton("Уведомления \uD83D\uDD14");
         editAlertLavel.setCallbackData("editAlertLevel");
         InlineKeyboardButton sendAlert = new InlineKeyboardButton("Сделать ананос \uD83D\uDD14");
-        sendAlert.setCallbackData("sendAlertGroupMenu");
+        sendAlert.setCallbackData("sendChoseTepeAlert");
 
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup(
                 List.of(

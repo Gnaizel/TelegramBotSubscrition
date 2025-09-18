@@ -4,6 +4,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.gnaizel.enums.AlertTepe;
 import ru.gnaizel.model.Group;
 
 import java.util.ArrayList;
@@ -81,14 +82,34 @@ public class KeyboardFactory {
         return keyBoard;
     }
 
-    public static InlineKeyboardMarkup handleAlertApplication(List<Group> groups) {
+    public static InlineKeyboardMarkup handleChoseTepeAlertApplication() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton groupButton = new InlineKeyboardButton();
+        groupButton.setText("Отправить В группу");
+        groupButton.setCallbackData("sendAlertToGroup");
+
+        InlineKeyboardButton groupMembersButton = new InlineKeyboardButton();
+        groupMembersButton.setText("Отправить участникам группы");
+        groupMembersButton.setCallbackData("sendAlertToGroupMember");
+
+        rows.add(List.of(groupButton));
+        rows.add(List.of(groupMembersButton));
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup handleAlertApplication(List<Group> groups, AlertTepe tepe) {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
         for (Group group : groups) {
             InlineKeyboardButton groupButton = new InlineKeyboardButton();
             groupButton.setText(group.getGroupTitle());
-            groupButton.setCallbackData("setGroupButtonForAlert" + group.getChatId());
+            groupButton.setCallbackData("setGroupButtonForAlert"
+                    + group.getChatId() + "-" + tepe.toString());
 
             rows.add(List.of(groupButton));
         }

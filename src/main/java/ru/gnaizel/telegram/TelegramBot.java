@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -66,6 +67,19 @@ public class TelegramBot extends TelegramLongPollingBot {
             return execute(msg);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке сообщения с клавиатурой", e);
+        }
+    }
+
+    public Message sendMessageWithHTML(long chatId, String text) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId);
+        msg.setText(text);
+        msg.setParseMode(ParseMode.HTML);
+
+        try {
+            return execute(msg);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException("Ошибка при отправке сообщения", e);
         }
     }
 

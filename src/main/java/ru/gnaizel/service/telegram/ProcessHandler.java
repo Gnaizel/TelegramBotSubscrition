@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.gnaizel.dto.user.UserDto;
+import ru.gnaizel.enums.AlertTepe;
 import ru.gnaizel.exception.MessageValidationError;
 import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.service.schebule.ScheduleService;
@@ -40,12 +41,29 @@ public class ProcessHandler {
 
         if (inProgress.get(chatId).startsWith("setGroupButtonForAlert")) {
             log.debug(inProgress.get(chatId));
+            UserDto user;
+            if (update.hasMessage()) {
+                user = userService.findUserByChatId(update.getMessage().getFrom().getId());
+            } else if (update.hasCallbackQuery()) {
+                user = userService.findUserByChatId(update.getCallbackQuery().getFrom().getId());
+            } else {
+                throw new MessageValidationError("Message is not valid (It's not a text, it's not a button)");
+            }
             String[] groupIdArray = inProgress.get(chatId).split("-");
+
             long groupId = Long.parseLong(groupIdArray[1]) * -1;
+            AlertTepe tepe = AlertTepe.valueOf(groupIdArray[2]);
             String message = update.getMessage().getText();
-            UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
+
             log.debug("Alert: groupId: {} UserId: {} Message: {}", groupId, user.getUserId(), message);
-            groupService.sendAlert(message, groupId, user.getUserId(), bot);
+
+            if (tepe == AlertTepe.GROUP) {
+                groupService.sendAlertToGroup(message, groupId, user.getUserId(), bot);
+            } else if (tepe == AlertTepe.GROUP_MAMERS) {
+                groupService.sendAlertToUser(message, groupId, user.getUserId(), bot);
+            }
+
+            inProgress.remove(chatId);
 
             return true;
         }
