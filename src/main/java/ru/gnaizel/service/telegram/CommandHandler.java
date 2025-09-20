@@ -58,6 +58,10 @@ public class CommandHandler {
                     break;
 
                 case "schedule", "Расписание 📅":
+                    String weekSchedule = scheduleService.buildScheduleToWeek(user.getCohort(), user.getKorpus());
+                    bot.sendMessage(MessageFactory.simple(update, weekSchedule));
+                    break;
+
                 case "schedule_to_day":
                     String todaySchedule = scheduleService.buildScheduleToday(user.getCohort(), user.getKorpus());
                     bot.sendMessage(MessageFactory.simple(update, todaySchedule));
@@ -81,6 +85,7 @@ public class CommandHandler {
                     bot.sendMessage(MessageFactory.simple(update, "Эта команда не поддерживается"));
             }
         } catch (ScheduleValidationError e) {
+            log.debug("Расписание не найдено ошибка - {}", e.getMessage());
             bot.sendMessage(MessageFactory.simple(update, "Актуального расписания не найдено"));
         }
     }

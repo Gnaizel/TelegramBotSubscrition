@@ -26,9 +26,26 @@ public class CallbackHandler {
         UserDto user = userService.findUserByChatId(userId);
         String callback = update.getCallbackQuery().getData();
 
+        log.debug(callback);
         if (callback.startsWith("setGroupButtonForAlert")) {
             bot.sendMessage(chatId, "Отправите текст для оповещения оно прейдёт участникам группы");
             ProcessHandler.inProgress.put(user.getUserId(), callback);
+            return;
+        } else if (callback.startsWith("groupSettings-")) {
+            long groupId = Long.parseLong(callback.substring("groupSettings".length()));
+            groupService.groupSettings(userId, groupId, bot);
+            return;
+        } else if (callback.startsWith("alertGroupSettings-")) {
+            long groupId = Long.parseLong(callback.substring("alertGroupSettings".length()));
+            groupService.groupAlertSettings(userId, groupId, bot);
+            return;
+        } else if (callback.startsWith("alertGroupSettingsEveryWeekSchedule-")) {
+            long groupId = Long.parseLong(callback.substring("alertGroupSettingsEveryWeekSchedule".length()));
+            groupService.setGroupSubEveryWeekSchedule(userId, groupId, bot);
+            return;
+        } else if (callback.startsWith("alertGroupSettingsEveryDaySchedule-")) {
+            long groupId = Long.parseLong(callback.substring("alertGroupSettingsEveryDaySchedule".length()));
+            groupService.setGroupSubEveryDaySchedule(userId, groupId, bot);
             return;
         }
 
@@ -43,13 +60,16 @@ public class CallbackHandler {
 //                ProcessHandler.inProgress.put(chatId, "setKorpus");
                 break;
             case "sendChoseTepeAlert":
-                groupService.sendChoseTepeAlert(userId, bot);
+                groupService.sendChoseTepeAlertMenu(userId, bot);
                 break;
             case "sendAlertToGroupMember":
                 groupService.sendAlertGroupMenu(user.getUserId(), AlertTepe.GROUP_MAMERS, bot);
                 break;
             case "sendAlertToGroup":
                 groupService.sendAlertGroupMenu(user.getUserId(), AlertTepe.GROUP, bot);
+                break;
+            case "groupSettings":
+                groupService.sendGroupMenuForGroupSettings(userId, bot);
                 break;
             case "oneKorpusButton":
                 userService.setKorpus(chatId, "Горького, 9");

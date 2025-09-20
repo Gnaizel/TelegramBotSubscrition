@@ -1,10 +1,10 @@
 package ru.gnaizel.service.schebule;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import jakarta.annotation.PostConstruct;
 import ru.gnaizel.client.ppk.PpkClient;
 import ru.gnaizel.exception.ScheduleValidationError;
 import ru.gnaizel.formater.ScheduleFormatter;
@@ -12,7 +12,7 @@ import ru.gnaizel.model.ScheduleEntry;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -63,18 +63,57 @@ public class ScheduleServiceImpl implements ScheduleService {
         throw new ScheduleValidationError("Not found any schedule for " + groupName);
     }
 
+
+//    @Override
+//    public String buildScheduleToday(String groupName, String korpusName) {
+//        LocalDate todayDaty = LocalDate.now();
+//
+//        String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
+//        List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
+//
+//        entries = entries.stream()
+//                .filter(entri -> {
+//                    String[] dateParse = entri.getDay().split(" ");
+//                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
+//                }) ВНИМАНИЕ ЭТО НАДА ОБРАТНО ПОСТАВИТЬ !!!!!!!!!
+//                .toList();
+//
+//        if (!entries.isEmpty()) {
+//            return ScheduleFormatter.format(groupName, entries);
+//        }
+//
+//        throw new ScheduleValidationError("Not found any schedule for " + groupName);
+//    }
+
+    @Override
+    public String buildScheduleToWeek(String groupName, String korpusName) {
+        LocalDate todayDaty = LocalDate.now();
+
+        String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
+        List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
+
+        entries = entries.stream().toList();
+
+        if (!entries.isEmpty()) {
+            return ScheduleFormatter.format(groupName, entries);
+        }
+
+        throw new ScheduleValidationError("Not found any schedule for " + groupName);
+    }
+
     @Override
     public String buildScheduleToday(String groupName, String korpusName) {
-        LocalDate todayDaty = LocalDate.now();
-        
+        LocalDate toDay = LocalDate.now();
+
         String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
         List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
 
         entries = entries.stream()
                 .filter(entri -> {
                     String[] dateParse = entri.getDay().split(" ");
-                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(todayDaty);
-                }).toList();
+                    return LocalDate.parse(dateParse[1], dateTimeFormatter).equals(toDay);
+                })
+                .toList();
 
         if (!entries.isEmpty()) {
             return ScheduleFormatter.format(groupName, entries);
@@ -86,7 +125,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public String buildScheduleToNextDay(String groupName, String korpusName) {
         LocalDate nextDay = LocalDate.now().plusDays(1);
-        
+
         String studentsBlock = ScheduleHtmlParser.extractStudentsBlock(html);
         List<ScheduleEntry> entries = ScheduleHtmlParser.parseSchedule(studentsBlock, groupName);
 
@@ -103,4 +142,5 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         throw new ScheduleValidationError("Not found any schedule for " + groupName);
     }
+
 }

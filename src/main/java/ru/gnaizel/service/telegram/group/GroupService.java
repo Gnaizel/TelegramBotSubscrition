@@ -19,9 +19,19 @@ public interface GroupService {
 
     List<Group> getGroupsOfUser(long userId);
 
+    void groupSettings(long userId, long groupId, TelegramBot bot);
+
+    void groupAlertSettings(long userId, long groupId, TelegramBot bot);
+
+    void setGroupSubEveryWeekSchedule(long user, long groupId, TelegramBot bot);
+
+    void setGroupSubEveryDaySchedule(long user, long groupId, TelegramBot bot);
+
+    void sendGroupMenuForGroupSettings(long userId, TelegramBot bot);
+
     void sendAlertGroupMenu(long userId, AlertTepe tepe, TelegramBot bot);
 
-    void sendChoseTepeAlert(long userId, TelegramBot bot);
+    void sendChoseTepeAlertMenu(long userId, TelegramBot bot);
 
     void sendAlertToGroup(String message, long groupChatId, long userId, TelegramBot bot);
 

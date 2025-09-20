@@ -66,7 +66,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             return execute(msg);
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Ошибка при отправке сообщения с клавиатурой", e);
+            throw new RuntimeException("Ошибка при отправке сообщения с клавиатурой - " + e);
         }
     }
 

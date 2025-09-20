@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.gnaizel.enums.GroupSubscriptions;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -18,12 +20,22 @@ public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long groupId;
     private Long chatId;
     private String groupTitle;
     private String inviteLink;
     private Long moderator;
     private int numberOfMember;
+
+    @ElementCollection(targetClass = GroupSubscriptions.class, fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "group_subscriptions_association",
+            joinColumns = @JoinColumn(name = "group_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_type")
+    private Set<GroupSubscriptions> subscriptions;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

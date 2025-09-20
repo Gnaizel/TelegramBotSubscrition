@@ -1,5 +1,6 @@
 package ru.gnaizel.service.telegram;
 
+import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -10,6 +11,7 @@ import ru.gnaizel.model.Group;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class KeyboardFactory {
 
     public static ReplyKeyboardMarkup mainKeyboard() {
@@ -109,7 +111,61 @@ public class KeyboardFactory {
             InlineKeyboardButton groupButton = new InlineKeyboardButton();
             groupButton.setText(group.getGroupTitle());
             groupButton.setCallbackData("setGroupButtonForAlert"
-                    + group.getChatId() + "-" + tepe.toString());
+                    + (group.getChatId()) + "-" + tepe.toString());
+
+            rows.add(List.of(groupButton));
+        }
+
+        inlineKeyboard.setKeyboard(rows);
+
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup handleGroupSettings(long groupId) { // Настройки группы
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton alertGroupSettings = new InlineKeyboardButton();
+        alertGroupSettings.setText("Настройка оповещений");
+        alertGroupSettings.setCallbackData("alertGroupSettings" + (groupId));
+        log.debug(alertGroupSettings.getCallbackData());
+
+
+        rows.add(List.of(alertGroupSettings));
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup handleAlertGroupSettings(long groupId) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton alertGroupSettingsEveryWeekSchedule = new InlineKeyboardButton();
+        alertGroupSettingsEveryWeekSchedule.setText("Еженедельное расписание");
+        alertGroupSettingsEveryWeekSchedule.setCallbackData("alertGroupSettingsEveryWeekSchedule" + groupId);
+
+        InlineKeyboardButton alertGroupSettingsEveryDaySchedule = new InlineKeyboardButton();
+        alertGroupSettingsEveryDaySchedule.setText("Ежедневное расписание");
+        alertGroupSettingsEveryDaySchedule.setCallbackData("alertGroupSettingsEveryDaySchedule" + groupId);
+
+        rows.add(List.of(alertGroupSettingsEveryWeekSchedule));
+        rows.add(List.of(alertGroupSettingsEveryDaySchedule));
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup handleGroupMenuForGroupSettings(List<Group> groups) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (Group group : groups) {
+            InlineKeyboardButton groupButton = new InlineKeyboardButton();
+            groupButton.setText(group.getGroupTitle());
+            groupButton.setCallbackData("groupSettings"
+                    + group.getChatId());
+            log.debug(groupButton.getCallbackData());
 
             rows.add(List.of(groupButton));
         }

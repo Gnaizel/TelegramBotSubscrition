@@ -31,6 +31,13 @@ CREATE TABLE IF NOT EXISTS group_message (
 
 CREATE TABLE IF NOT EXISTS user_groups (
     user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
-    group_id BIGINT REFERENCES groups(id),
+    group_id BIGINT REFERENCES groups (id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, group_id)
+);
+
+CREATE TABLE IF NOT EXISTS group_subscriptions_association
+(
+    group_id          BIGINT      NOT NULL REFERENCES groups (id) ON DELETE CASCADE,
+    subscription_type VARCHAR(50) NOT NULL CHECK (subscription_type IN ('SCHEDULE_EVERY_WEEK', 'SCHEDULE_EVERY_DAY')),
+    PRIMARY KEY (group_id, subscription_type)
 );

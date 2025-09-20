@@ -10,4 +10,6 @@ public interface ScheduleService {
     String buildScheduleToday(String groupName, String korpusName);
 
     String buildScheduleToNextDay(String groupName, String korpusName);
+
+    String buildScheduleToWeek(String groupName, String korpusName);
 }

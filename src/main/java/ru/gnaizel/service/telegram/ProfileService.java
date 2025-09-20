@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.gnaizel.dto.user.UserDto;
-import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
 
@@ -70,11 +69,14 @@ public class ProfileService {
         editAlertLavel.setCallbackData("editAlertLevel");
         InlineKeyboardButton sendAlert = new InlineKeyboardButton("Сделать ананос \uD83D\uDD14");
         sendAlert.setCallbackData("sendChoseTepeAlert");
+        InlineKeyboardButton groupSettings = new InlineKeyboardButton("Настройки группы \uD83D\uDD14");
+        groupSettings.setCallbackData("groupSettings");
 
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup(
                 List.of(
                         List.of(editGroup, editKorpus, editAlertLavel),
-                        List.of(sendAlert)));
+                        List.of(sendAlert),
+                        List.of(groupSettings)));
         msg.setReplyMarkup(kb);
 
         bot.sendMessage(msg);

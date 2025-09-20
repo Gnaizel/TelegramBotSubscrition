@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.enums.AlertTepe;
+import ru.gnaizel.enums.GroupSubscriptions;
 import ru.gnaizel.enums.UserStatus;
 import ru.gnaizel.exception.GroupValidationException;
 import ru.gnaizel.exception.UserValidationError;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 public class GroupServiceImpl implements GroupService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-    // ConcurrentHashMap — чуть безопаснее при параллельных кликах
     private final Map<Long, Request> activeApplication = new ConcurrentHashMap<>();
 
     @Override
@@ -70,6 +70,76 @@ public class GroupServiceImpl implements GroupService {
     public Group findOfGroupChatId(long chatId) {
         return groupRepository.findByChatId(chatId)
                 .orElseThrow(() -> new GroupValidationException("Group not found"));
+    }
+
+    @Override
+    public void groupSettings(long userId, long groupId, TelegramBot bot) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+
+        bot.sendWithInlineKeyboard(user.getChatId(),
+                "Настройки группы",
+                KeyboardFactory.handleGroupSettings(groupId));
+    }
+
+    @Override
+    public void groupAlertSettings(long userId, long groupId, TelegramBot bot) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+
+        log.debug("group chatId: {}", groupId);
+        Group group = groupRepository.findByChatId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+
+        group.getSubscriptions();
+
+        bot.sendWithInlineKeyboard(user.getChatId(),
+                "Настройки оповещений группы",
+                KeyboardFactory.handleAlertGroupSettings(groupId));
+    }
+
+    @Override
+    public void setGroupSubEveryWeekSchedule(long userId, long groupId, TelegramBot bot) {
+        Group group = groupRepository.findByChatId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+
+        if (!group.getSubscriptions().contains(GroupSubscriptions.SCHEDULE_EVERY_WEEK)) {
+            group.getSubscriptions().add(GroupSubscriptions.SCHEDULE_EVERY_WEEK);
+            bot.sendMessage(user.getChatId(), "Вы подписали группу на еженедельный анонс расписания");
+        } else {
+            group.getSubscriptions().remove(GroupSubscriptions.SCHEDULE_EVERY_WEEK);
+            bot.sendMessage(user.getChatId(), "Вы отписали группу от еженедельных анонсов расписания");
+        }
+    }
+
+    @Override
+    public void setGroupSubEveryDaySchedule(long userId, long groupId, TelegramBot bot) {
+        Group group = groupRepository.findByChatId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+
+        if (!group.getSubscriptions().contains(GroupSubscriptions.SCHEDULE_EVERY_DAY)) {
+            group.getSubscriptions().add(GroupSubscriptions.SCHEDULE_EVERY_DAY);
+            bot.sendMessage(user.getChatId(), "Вы подписали группу на ежедневный анонс расписания");
+        } else {
+            group.getSubscriptions().remove(GroupSubscriptions.SCHEDULE_EVERY_DAY);
+            bot.sendMessage(user.getChatId(), "Вы отписали группу от ежедневных анонсов расписания");
+        }
+    }
+
+    @Override
+    public void sendGroupMenuForGroupSettings(long userId, TelegramBot bot) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found"));
+        List<Group> groups = getGroupsOfUserElder(userId);
+
+        bot.sendWithInlineKeyboard(user.getChatId(), "Выберете группу: ",
+                KeyboardFactory.handleGroupMenuForGroupSettings(groups));
     }
 
     private void sendApplication(UserDto user, long chatId, TelegramBot bot) {
@@ -132,7 +202,7 @@ public class GroupServiceImpl implements GroupService {
                 } catch (Exception e) {
                     log.warn("Не удалось обновить сообщение голосования: {}", e.getMessage(), e);
                 }
-                if (votesCount >= 6) {
+                if (votesCount >= 1) {
                     setGroupModerator(chatId, applicantUserId, bot);
                 }
                 activeApplication.put(applicantUserId, request);
@@ -261,7 +331,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void sendChoseTepeAlert(long userId, TelegramBot bot) {
+    public void sendChoseTepeAlertMenu(long userId, TelegramBot bot) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserValidationError("User not found"));
 
