@@ -220,7 +220,7 @@ public class GroupServiceImpl implements GroupService {
                 } catch (Exception e) {
                     log.warn("Не удалось обновить сообщение голосования: {}", e.getMessage(), e);
                 }
-                if (votesCount >= 1) {
+                if (votesCount >= 6) {
                     setGroupModerator(chatId, applicantUserId, bot);
                 }
                 activeApplication.put(applicantUserId, request);
