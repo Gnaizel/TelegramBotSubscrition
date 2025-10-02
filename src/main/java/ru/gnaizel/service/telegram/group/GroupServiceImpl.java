@@ -220,7 +220,7 @@ public class GroupServiceImpl implements GroupService {
                 } catch (Exception e) {
                     log.warn("Не удалось обновить сообщение голосования: {}", e.getMessage(), e);
                 }
-                if (votesCount >= 6) {
+                if (votesCount >= 1) {
                     setGroupModerator(chatId, applicantUserId, bot);
                 }
                 activeApplication.put(applicantUserId, request);
@@ -278,12 +278,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> getGroupsOfUserElder(long userId) {
         List<Group> groups = getGroupsOfUser(userId);
+        log.info(groups.toString());
+
         List<Group> groupOfElder = groups.stream()
-                .filter(group -> group.getModerator() == userId)
+                .filter(group -> group.getModerator() != null && group.getModerator() == userId)
                 .toList();
 
         if (groupOfElder.isEmpty()) {
-            throw new GroupValidationException("User bont have groupOfElder");
+            throw new GroupValidationException("User doesn't have groupOfElder");
         }
 
         return groupOfElder;
