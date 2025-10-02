@@ -153,11 +153,11 @@ public class KeyboardFactory {
         groupCohort.setText("Изменить группу (ИИИ-000)");
         groupCohort.setCallbackData("setGroupCohort" + groupId);
 
-        InlineKeyboardButton groupKorpus = new InlineKeyboardButton();
-        groupKorpus.setText("Изменить корпус");
-        groupKorpus.setCallbackData("setGroupKorpus" + groupId);
+//        InlineKeyboardButton groupKorpus = new InlineKeyboardButton();
+//        groupKorpus.setText("Изменить корпус");
+//        groupKorpus.setCallbackData("setGroupKorpus" + groupId);
 
-        rows.add(List.of(groupKorpus, groupCohort));
+        rows.add(List.of(groupCohort));
 
         rows.add(List.of(alertGroupSettingsEveryWeekSchedule));
         rows.add(List.of(alertGroupSettingsEveryDaySchedule));

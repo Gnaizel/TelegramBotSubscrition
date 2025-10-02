@@ -46,7 +46,10 @@ public class CommandHandler {
             command = commandSplit[0];
         }
         userService.checkingForANewUserByMassage(update, bot);
-        menuService.createMenuCommand(bot);
+
+        if (update.getMessage().getChatId() > 0) {
+            menuService.createMenuCommand(bot);
+        }
 
         UserDto user = userService.findUserByChatId(update.getMessage().getFrom().getId());
         log.debug("Command received: {}\nFrom: {}", command, user.getUserName());

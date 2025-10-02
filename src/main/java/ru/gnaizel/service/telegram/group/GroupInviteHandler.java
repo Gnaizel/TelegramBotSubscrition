@@ -2,6 +2,7 @@ package ru.gnaizel.service.telegram.group;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.CreateChatInviteLink;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -24,6 +25,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GroupInviteHandler {
     private final GroupRepository repository;
+    @Value("${telegram.bot.username}")
+    private String botName;
 
     public void groupInviteHandle(Update update, TelegramBot bot) {
         if (!update.hasMyChatMember()) {
@@ -65,7 +68,7 @@ public class GroupInviteHandler {
                         .build());
                 messageText = "Привет! Спасибо, что добавили меня в группу " + groupName + " ! \n"
                         + "Для корректной работы боту нужны права администратора" + "\n"
-                        + "Вы можете выдвинуть свою кандидатуру в роль модератора(старосты) - /apply@ppk_sstu_test_bot";
+                        + "Вы можете выдвинуть свою кандидатуру в роль модератора(старосты) - /apply@" + botName;
             }
 
             bot.sendMessage(chatId, messageText);
