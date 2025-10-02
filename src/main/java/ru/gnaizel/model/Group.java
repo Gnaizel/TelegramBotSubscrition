@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import ru.gnaizel.enums.GroupSubscriptions;
+import ru.gnaizel.enums.Subscriptions;
 
 import java.util.List;
 import java.util.Set;
@@ -26,16 +26,18 @@ public class Group {
     private String groupTitle;
     private String inviteLink;
     private Long moderator;
+    private String korpus;
+    private String cohort;
     private int numberOfMember;
 
-    @ElementCollection(targetClass = GroupSubscriptions.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = Subscriptions.class, fetch = FetchType.EAGER)
     @CollectionTable(
             name = "group_subscriptions_association",
             joinColumns = @JoinColumn(name = "group_id")
     )
     @Enumerated(EnumType.STRING)
     @Column(name = "subscription_type")
-    private Set<GroupSubscriptions> subscriptions;
+    private Set<Subscriptions> subscriptions;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.gnaizel.dto.user.UserCreateDto;
 import ru.gnaizel.dto.user.UserDto;
+import ru.gnaizel.enums.Subscriptions;
 import ru.gnaizel.enums.UserStatus;
 import ru.gnaizel.exception.GroupValidationException;
 import ru.gnaizel.exception.TelegramUpdateValidationError;
@@ -114,6 +115,28 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         }
         return false;
+    }
+
+    @Override
+    public void setSub(long userId, Subscriptions sub, TelegramBot bot) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserValidationError("User not found exception"));
+
+        String subName = switch (sub) {
+            case SCHEDULE_EVERY_DAY -> "ежедневное";
+            case SCHEDULE_EVERY_WEEK -> "еженедельное";
+        };
+
+        if (!user.getSubscriptions().contains(sub)) {
+            user.getSubscriptions().add(sub);
+
+            bot.sendMessage(userId, "Вы подключили уведомления на " + subName + " расписания");
+        } else {
+            user.getSubscriptions().remove(sub);
+
+            bot.sendMessage(userId, "Вы отключили уведомления на " + subName + " расписания");
+        }
+        userRepository.save(user);
     }
 
     @Override

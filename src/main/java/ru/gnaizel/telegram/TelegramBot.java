@@ -3,6 +3,7 @@ package ru.gnaizel.telegram;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -13,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.gnaizel.exception.TelegramUpdateValidationError;
+import ru.gnaizel.service.schebule.ScheduleService;
 import ru.gnaizel.service.telegram.UpdateHandler;
 
 @Slf4j
@@ -21,6 +23,7 @@ import ru.gnaizel.service.telegram.UpdateHandler;
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final UpdateHandler updateHandler;
+    private final ScheduleService scheduleService;
 
     @Value("${telegram.bot.token}")
     private String TELEGRAM_BOT_TOKEN;
@@ -89,6 +92,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             throw new TelegramUpdateValidationError(e.getMessage());
         }
+    }
+
+    @Scheduled(cron = "0 30 7 * * *")
+    private void sendScheduleEveryDaySub() {
+        scheduleService.alertNewScheduleTodayUserSub(this);
+        scheduleService.alertNewScheduleTodayGroupSub(this);
     }
 
     @Override

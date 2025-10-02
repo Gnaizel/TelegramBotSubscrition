@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import ru.gnaizel.enums.GroupSubscriptions;
+import ru.gnaizel.enums.Subscriptions;
 
 @Data
 @Builder
@@ -17,5 +17,7 @@ public class GroupDto {
     private String userName;
     private String inviteLink;
     private int numberOfMember;
-    private GroupSubscriptions subscriptions;
+    private String korpus;
+    private String cohort;
+    private Subscriptions subscriptions;
 }

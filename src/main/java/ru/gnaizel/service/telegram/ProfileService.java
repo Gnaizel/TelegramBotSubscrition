@@ -67,6 +67,8 @@ public class ProfileService {
         editKorpus.setCallbackData("editKorpus");
         InlineKeyboardButton editAlertLavel = new InlineKeyboardButton("Уведомления \uD83D\uDD14");
         editAlertLavel.setCallbackData("editAlertLevel");
+        InlineKeyboardButton editSubs = new InlineKeyboardButton("Подписки на уведомления");
+        editSubs.setCallbackData("editSubs");
         InlineKeyboardButton sendAlert = new InlineKeyboardButton("Сделать ананос \uD83D\uDD14");
         sendAlert.setCallbackData("sendChoseTepeAlert");
         InlineKeyboardButton groupSettings = new InlineKeyboardButton("Настройки группы \uD83D\uDD14");
@@ -75,7 +77,7 @@ public class ProfileService {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup(
                 List.of(
                         List.of(editGroup, editKorpus, editAlertLavel),
-                        List.of(sendAlert),
+                        List.of(sendAlert, editSubs),
                         List.of(groupSettings)));
         msg.setReplyMarkup(kb);
 
@@ -109,10 +111,13 @@ public class ProfileService {
         editKorpus.setCallbackData("editKorpus");
         InlineKeyboardButton editAlertLavel = new InlineKeyboardButton("Уведомления \uD83D\uDD14");
         editAlertLavel.setCallbackData("editAlertLevel");
+        InlineKeyboardButton editSubs = new InlineKeyboardButton("Подписки на уведомления");
+        editSubs.setCallbackData("editSubs");
 
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup(
                 List.of(
-                        List.of(editGroup, editKorpus, editAlertLavel)));
+                        List.of(editGroup, editKorpus),
+                        List.of(editAlertLavel, editSubs)));
         msg.setReplyMarkup(kb);
 
         bot.sendMessage(msg);

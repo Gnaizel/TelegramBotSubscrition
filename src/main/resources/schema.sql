@@ -17,7 +17,15 @@ CREATE TABLE IF NOT EXISTS groups (
     invite_link VARCHAR(255),
     number_of_member INT,
     moderator BIGINT,
-    chat_id BIGINT
+    chat_id BIGINT,
+    korpus VARCHAR
+(
+    100
+),
+    cohort VARCHAR
+(
+    10
+)
 );
 
 CREATE TABLE IF NOT EXISTS group_message (
@@ -41,3 +49,32 @@ CREATE TABLE IF NOT EXISTS group_subscriptions_association
     subscription_type VARCHAR(50) NOT NULL CHECK (subscription_type IN ('SCHEDULE_EVERY_WEEK', 'SCHEDULE_EVERY_DAY')),
     PRIMARY KEY (group_id, subscription_type)
 );
+
+CREATE TABLE IF NOT EXISTS users_subscriptions_association
+(
+    user_id
+    BIGINT
+    NOT
+    NULL
+    REFERENCES
+    users
+(
+    id
+) ON DELETE CASCADE,
+    subscription_type VARCHAR
+(
+    50
+) NOT NULL CHECK
+(
+    subscription_type
+    IN
+(
+    'SCHEDULE_EVERY_WEEK',
+    'SCHEDULE_EVERY_DAY'
+)),
+    PRIMARY KEY
+(
+    user_id,
+    subscription_type
+)
+    );

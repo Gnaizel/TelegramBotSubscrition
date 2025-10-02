@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.enums.AlertTepe;
-import ru.gnaizel.enums.GroupSubscriptions;
+import ru.gnaizel.enums.Subscriptions;
 import ru.gnaizel.enums.UserStatus;
 import ru.gnaizel.exception.GroupValidationException;
 import ru.gnaizel.exception.UserValidationError;
@@ -106,13 +106,14 @@ public class GroupServiceImpl implements GroupService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserValidationError("User not found"));
 
-        if (!group.getSubscriptions().contains(GroupSubscriptions.SCHEDULE_EVERY_WEEK)) {
-            group.getSubscriptions().add(GroupSubscriptions.SCHEDULE_EVERY_WEEK);
+        if (!group.getSubscriptions().contains(Subscriptions.SCHEDULE_EVERY_WEEK)) {
+            group.getSubscriptions().add(Subscriptions.SCHEDULE_EVERY_WEEK);
             bot.sendMessage(user.getChatId(), "Вы подписали группу на еженедельный анонс расписания");
         } else {
-            group.getSubscriptions().remove(GroupSubscriptions.SCHEDULE_EVERY_WEEK);
+            group.getSubscriptions().remove(Subscriptions.SCHEDULE_EVERY_WEEK);
             bot.sendMessage(user.getChatId(), "Вы отписали группу от еженедельных анонсов расписания");
         }
+        groupRepository.save(group);
     }
 
     @Override
@@ -123,13 +124,30 @@ public class GroupServiceImpl implements GroupService {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserValidationError("User not found"));
 
-        if (!group.getSubscriptions().contains(GroupSubscriptions.SCHEDULE_EVERY_DAY)) {
-            group.getSubscriptions().add(GroupSubscriptions.SCHEDULE_EVERY_DAY);
+        if (!group.getSubscriptions().contains(Subscriptions.SCHEDULE_EVERY_DAY)) {
+            group.getSubscriptions().add(Subscriptions.SCHEDULE_EVERY_DAY);
             bot.sendMessage(user.getChatId(), "Вы подписали группу на ежедневный анонс расписания");
         } else {
-            group.getSubscriptions().remove(GroupSubscriptions.SCHEDULE_EVERY_DAY);
+            group.getSubscriptions().remove(Subscriptions.SCHEDULE_EVERY_DAY);
             bot.sendMessage(user.getChatId(), "Вы отписали группу от ежедневных анонсов расписания");
         }
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void setGroup(long groupId, String kogort, TelegramBot bot) {
+        Group group = groupRepository.findByGroupId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+        group.setCohort(kogort);
+        groupRepository.save(group);
+    }
+
+    @Override
+    public void setKorpus(long groupId, String korpus, TelegramBot bot) {
+        Group group = groupRepository.findByGroupId(groupId)
+                .orElseThrow(() -> new GroupValidationException("Group not found"));
+        group.setKorpus(korpus);
+        groupRepository.save(group);
     }
 
     @Override
@@ -362,10 +380,11 @@ public class GroupServiceImpl implements GroupService {
 
         bot.sendMessage(chatId, "Пользователь " + user.getUserName() + " становится модератором \uD83C\uDF89");
 
-        bot.sendMessage(user.getChatId(), "Поздравляю " + user.getUserName() + " с этого момента " +
+        bot.sendWithInlineKeyboard(user.getChatId(), "Поздравляю " + user.getUserName() + " с этого момента " +
                 "\nвы становитесь новым модератором группы " + group.getGroupTitle() +
                 " \uD83C\uDF89\uD83C\uDF89\uD83C\uDF89" + "\nВам разблокированы функции оповещения группы " +
-                "(пока-что это все функции)");
+                "(пока-что это все функции) \n\n ВНИМАНИЕ !!! \n Вам необходимо задать когорту для группы и ваш корпус" +
+                " это можно сделать ниже или в вашем профиле", KeyboardFactory.handleSetCohortForGroup(group.getChatId()));
     }
 
     @Data

@@ -149,6 +149,16 @@ public class KeyboardFactory {
         alertGroupSettingsEveryDaySchedule.setText("Ежедневное расписание");
         alertGroupSettingsEveryDaySchedule.setCallbackData("alertGroupSettingsEveryDaySchedule" + groupId);
 
+        InlineKeyboardButton groupCohort = new InlineKeyboardButton();
+        groupCohort.setText("Изменить группу (ИИИ-000)");
+        groupCohort.setCallbackData("setGroupCohort" + groupId);
+
+        InlineKeyboardButton groupKorpus = new InlineKeyboardButton();
+        groupKorpus.setText("Изменить корпус");
+        groupKorpus.setCallbackData("setGroupKorpus" + groupId);
+
+        rows.add(List.of(groupKorpus, groupCohort));
+
         rows.add(List.of(alertGroupSettingsEveryWeekSchedule));
         rows.add(List.of(alertGroupSettingsEveryDaySchedule));
 
@@ -169,6 +179,46 @@ public class KeyboardFactory {
 
             rows.add(List.of(groupButton));
         }
+
+        inlineKeyboard.setKeyboard(rows);
+
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup handleSetCohortForGroup(long groupId) {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton groupCohort = new InlineKeyboardButton();
+        groupCohort.setText("Изменить группу (ИИИ-000)");
+        groupCohort.setCallbackData("setGroupCohort" + groupId);
+
+        InlineKeyboardButton groupKorpus = new InlineKeyboardButton();
+        groupKorpus.setText("Изменить корпус");
+        groupKorpus.setCallbackData("setGroupKorpus" + groupId);
+
+        rows.add(List.of(groupCohort));
+        rows.add(List.of(groupKorpus));
+
+        inlineKeyboard.setKeyboard(rows);
+
+        return inlineKeyboard;
+    }
+
+    public InlineKeyboardMarkup handleSubEditor() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton everyDay = new InlineKeyboardButton();
+        everyDay.setText("Ежедневное Расписание");
+        everyDay.setCallbackData("setScheduleSubDay");
+
+        InlineKeyboardButton everyWeek = new InlineKeyboardButton();
+        everyWeek.setText("Еженедельное Расписание");
+        everyWeek.setCallbackData("setScheduleSubWeek");
+
+        rows.add(List.of(everyDay));
+        rows.add(List.of(everyWeek));
 
         inlineKeyboard.setKeyboard(rows);
 

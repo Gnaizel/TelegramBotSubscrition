@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.enums.AlertTepe;
+import ru.gnaizel.enums.Subscriptions;
 import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
 import ru.gnaizel.telegram.TelegramBot;
@@ -46,6 +47,16 @@ public class CallbackHandler {
         } else if (callback.startsWith("alertGroupSettingsEveryDaySchedule-")) {
             long groupId = Long.parseLong(callback.substring("alertGroupSettingsEveryDaySchedule".length()));
             groupService.setGroupSubEveryDaySchedule(userId, groupId, bot);
+            return;
+        } else if (callback.startsWith("setGroupCohort-")) {
+//            long groupId = Long.parseLong(callback.substring("setGroupCohort".length()));
+            bot.sendMessage(userId, "Введите группу (Формат: ИСП-999)");
+            ProcessHandler.inProgress.put(user.getUserId(), callback);
+            return;
+        } else if (callback.startsWith("setGroupKorpus-")) {
+//            long groupId = Long.parseLong(callback.substring("setGroupKorpus".length()));
+            bot.sendMessage(userId, "Выберете корпус");
+            ProcessHandler.inProgress.put(user.getUserId(), callback);
             return;
         }
 
@@ -96,9 +107,13 @@ public class CallbackHandler {
                 bot.sendMessage(MessageFactory.simple(update, "Корпус установлен: Сакко и Ванцетти (физкультурники)"));
                 break;
             case "editAlertLevel": // Уровень аллёртов
-                bot.sendWithInlineKeyboard(chatId, "Выберите какие уведомления вам необходмы:",
+                bot.sendWithInlineKeyboard(chatId, "Выберите какие уведомления вам необходимы:",
                         keyboardFactory.handleAlertLevelEditor());
                 ProcessHandler.inProgress.put(chatId, "editAlertLevel");
+                break;
+            case "editSubs":
+                bot.sendWithInlineKeyboard(chatId, "Выберите какие уведомления вам необходимы:",
+                        keyboardFactory.handleSubEditor());
                 break;
             case "setAlertLevelZero":
                 userService.setAlertLevel(chatId, (byte) 0);
@@ -111,6 +126,12 @@ public class CallbackHandler {
             case "setAlertLevelThree":
                 userService.setAlertLevel(chatId, (byte) 2);
                 bot.sendMessage(chatId, "Изменено на \uD83D\uDD14");
+                break;
+            case "setScheduleSubDay":
+                userService.setSub(userId, Subscriptions.SCHEDULE_EVERY_DAY, bot);
+                break;
+            case "setScheduleSubWeek":
+                userService.setSub(userId, Subscriptions.SCHEDULE_EVERY_WEEK, bot);
                 break;
             case "approvedApplicationOfModeration":
                 groupService.vote(update.getCallbackQuery(), bot);

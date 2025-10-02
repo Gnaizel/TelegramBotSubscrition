@@ -8,6 +8,7 @@ import ru.gnaizel.dto.user.UserDto;
 import ru.gnaizel.enums.AlertTepe;
 import ru.gnaizel.exception.MessageValidationError;
 import ru.gnaizel.exception.ScheduleValidationError;
+import ru.gnaizel.model.Group;
 import ru.gnaizel.service.schebule.ScheduleService;
 import ru.gnaizel.service.telegram.group.GroupService;
 import ru.gnaizel.service.user.UserService;
@@ -62,6 +63,41 @@ public class ProcessHandler {
             } else if (tepe == AlertTepe.GROUP_MAMERS) {
                 groupService.sendAlertToUser(message, groupId, user.getUserId(), bot);
             }
+
+            inProgress.remove(chatId);
+
+            return true;
+        } else if (inProgress.get(chatId).startsWith("setGroupCohort")) {
+            String callback = inProgress.get(chatId);
+            long groupId = Long.parseLong(callback.substring("setGroupCohort".length()));
+
+            String text = update.getMessage().getText();
+
+            if (text == null || text.isEmpty()) {
+                bot.sendMessage(MessageFactory.simple(update, "Поле группы не может быть пустым"));
+                throw new MessageValidationError("message text is empty");
+            }
+            if (text.length() < 3 || text.length() > 10 || !text.contains("-")) {
+                bot.sendMessage(MessageFactory.simple(update, "Это не похоже на название группы"));
+                throw new MessageValidationError("Group validation error");
+            }
+
+            Group group = groupService.findOfGroupChatId(groupId);
+            String cohort = update.getMessage().getText();
+            groupService.setGroup(groupId, text.toUpperCase().replaceAll(" ", ""), bot);
+
+            bot.sendMessage(chatId, "когорта группы изменена на: " + cohort);
+
+            inProgress.remove(chatId);
+            return true;
+
+        } else if (inProgress.get(chatId).startsWith("setGroupKorpus")) {
+            String callback = inProgress.get(chatId);
+            long groupId = Long.parseLong(callback.substring("setGroupKorpus".length()));
+
+            Group group = groupService.findOfGroupChatId(groupId);
+            String korpus = update.getMessage().getText();
+            groupService.setKorpus(groupId, korpus, bot);
 
             inProgress.remove(chatId);
 

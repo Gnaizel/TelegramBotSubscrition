@@ -27,6 +27,10 @@ public interface GroupService {
 
     void setGroupSubEveryDaySchedule(long user, long groupId, TelegramBot bot);
 
+    void setGroup(long groupId, String group, TelegramBot bot);
+
+    void setKorpus(long groupId, String korpus, TelegramBot bot);
+
     void sendGroupMenuForGroupSettings(long userId, TelegramBot bot);
 
     void sendAlertGroupMenu(long userId, AlertTepe tepe, TelegramBot bot);
